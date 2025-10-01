@@ -31,7 +31,7 @@ spring:
 
 # JWT-конфигурация (значения подставишь свои)
 jwt:
-  secret: "superSecretKeyForJWT123"   # длинный секретный ключ для подписи токенов
+  secret: jF7#vP9!wX2z$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY   # длинный секретный ключ для подписи токенов
   expiration: 3600000   # время жизни токена в миллисекундах (1 час)
 
 # Swagger (Springdoc OpenAPI)
