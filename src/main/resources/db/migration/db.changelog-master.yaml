@@ -3,3 +3,5 @@ databaseChangeLog:
       file: classpath:db/migration/db.changelog-1.0-create-tables.yaml
   - include:
       file: classpath:db/migration/db.changelog-1.1-insert-roles.yaml
+  - include:
+      file: classpath:db/migration/db.changelog-1.2-add-enabled-to-users.yaml
