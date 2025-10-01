@@ -1,0 +1,36 @@
+# Maven / target
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+/.idea/
+/*.iml
+/out/
+
+# logs
+*.log
+
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# Local application config (если будешь держать локальные секреты)
+src/main/resources/application-local.yml
+src/main/resources/*.local.*
+
+# Keystores, private keys
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# Liquibase history
+/liquibase-release.properties

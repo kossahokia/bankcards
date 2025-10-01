@@ -1,3 +1,3 @@
 # Ресурсы
 
-application.yml, настройки логов, конфигурации Liquibase и прочее.
+# application.yml, настройки логов, конфигурации Liquibase и прочее.
