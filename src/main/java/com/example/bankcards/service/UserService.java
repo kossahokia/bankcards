@@ -2,6 +2,8 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.entity.Role;
 import com.example.bankcards.entity.User;
+import com.example.bankcards.exception.customexceptions.BadRequestException;
+import com.example.bankcards.exception.customexceptions.NotFoundException;
 import com.example.bankcards.repository.RoleRepository;
 import com.example.bankcards.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +27,11 @@ public class UserService {
 
     public User createUser(String username, String password, String fullName, String roleName) {
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new IllegalArgumentException("Пользователь с таким username уже существует");
+            throw new BadRequestException("Пользователь с таким username уже существует");
         }
 
         Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("Роль не найдена: " + roleName));
+                .orElseThrow(() -> new NotFoundException("Роль не найдена: " + roleName));
 
         Set<Role> roles = new HashSet<>();
         roles.add(role);
@@ -54,17 +56,17 @@ public class UserService {
 
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("Пользователь не найден");
+            throw new NotFoundException("Пользователь не найден");
         }
         userRepository.deleteById(userId);
     }
 
     public User assignRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("Роль не найдена: " + roleName));
+                .orElseThrow(() -> new NotFoundException("Роль не найдена: " + roleName));
 
         user.getRoles().add(role);
         return userRepository.save(user);
