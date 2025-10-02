@@ -53,14 +53,21 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        // разрешаем публично доступные эндпоинты (аутх, сваггер и т.д.)
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/swagger-ui/index.html",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/webjars/**",
                                 "/h2-console/**"
                         ).permitAll()
+
+
+
                         // остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )

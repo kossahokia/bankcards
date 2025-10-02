@@ -3,6 +3,7 @@ package com.example.bankcards.service;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.entity.enums.CardStatus;
+import com.example.bankcards.exception.customexceptions.NotFoundException;
 import com.example.bankcards.repository.CardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public class CardService {
 
     public void deleteCard(Long cardId) {
         if (!cardRepository.existsById(cardId)) {
-            throw new IllegalArgumentException("Карта не найдена");
+            throw new NotFoundException("Карта не найдена");
         }
         cardRepository.deleteById(cardId);
     }
@@ -38,7 +39,7 @@ public class CardService {
 
     public Card updateCardStatus(Long cardId, CardStatus newStatus) {
         Card card = cardRepository.findWithLockById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("Карта не найдена"));
+                .orElseThrow(() -> new NotFoundException("Карта не найдена"));
 
         card.setStatus(newStatus);
         return cardRepository.save(card);
