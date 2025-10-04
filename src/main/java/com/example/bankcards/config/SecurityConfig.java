@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 @Configuration
@@ -29,7 +31,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // провайдер аутентификации: наш UserDetailsService + BCrypt
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -38,43 +39,38 @@ public class SecurityConfig {
         return provider;
     }
 
-    // чтобы иметь возможность получить AuthenticationManager в AuthService
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    // основная безопасность — сюда регистрируем JWT фильтр
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) // настроим CORS позже при необходимости
+                .cors(cors -> {}) // если надо, можно вынести конфиг CORS отдельно
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html",
                                 "/swagger-ui/**",
-                                "/swagger-ui/index.html",
-                                "/swagger-resources",
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/h2-console/**"
                         ).permitAll()
-
-
-
-                        // остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )
-                // регистрируем наш JWT-фильтр до стандартного UsernamePasswordAuthenticationFilter
+                .exceptionHandling(e -> e
+                        // если нет токена → 401
+                        .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        // если нет прав → 403
+                        .accessDeniedHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_FORBIDDEN))
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // если используешь H2 console — можно временно отключить frameOptions
+        // чтобы работала H2 console
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();

@@ -42,9 +42,23 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Card> cards = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void addCard(Card card) {
+        cards.add(card);
+        card.setOwner(this);
+    }
+
+    public void removeCard(Card card) {
+        cards.remove(card);
+        card.setOwner(null);
+    }
+
 }
 
