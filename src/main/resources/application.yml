@@ -1,43 +1,35 @@
-#
-# application.yml — главный конфигурационный файл Spring Boot.
-
-#Что нужно сделать:
-#  - Указать настройки подключения к базе данных.
-#  - Указать порт приложения.
-#  - Настроить параметры безопасности и JWT.
-#  - Включить Swagger UI.
-
 server:
-  port: 8080   # Порт, на котором будет работать приложение
+  port: 8080
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bankdb   # твоя база (замени на имя, которое создал)
-    username: postgres   # имя пользователя БД
-    password: postgres   # пароль (замени на свой)
+    url: jdbc:postgresql://localhost:5432/bankdb
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate   # проверяет, что структура БД соответствует сущностям (мы используем Liquibase, поэтому update/create тут НЕ нужно)
-    show-sql: true         # выводит SQL в консоль (удобно для дебага)
+      ddl-auto: validate
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
 
   liquibase:
-    change-log: classpath:db/migration/db.changelog-master.yaml  # путь к master-файлу с миграциями
+    change-log: classpath:db/migration/db.changelog-master.yaml
     enabled: true
 
-# JWT-конфигурация (значения подставишь свои)
 jwt:
-  secret: jF7#vP9!wX2z$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY   # длинный секретный ключ для подписи токенов
-  expiration: 3600000   # время жизни токена в миллисекундах (1 час)
+  secret: jF7#vP9!wX2z$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY
+  expiration: 3600000
 
-# Swagger (Springdoc OpenAPI)
 springdoc:
   api-docs:
     enabled: true
   swagger-ui:
     enabled: true
 
+app:
+  encryption:
+    secret: djlfwkejfogwewrklwlerkngerewgwre
