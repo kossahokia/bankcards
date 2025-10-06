@@ -98,7 +98,7 @@ class AuthServiceTest {
     @DisplayName("✅ register success saves user and returns response")
     void register_Success() {
         when(userRepository.findByUsername("alice")).thenReturn(Optional.empty());
-        when(roleRepository.findByName("USER")).thenReturn(Optional.of(roleUser));
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.of(roleUser));
         when(passwordEncoder.encode("pwd123")).thenReturn("ENC(pwd123)");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
@@ -155,7 +155,7 @@ class AuthServiceTest {
     @DisplayName("❌ register throws if default role USER not found")
     void register_RoleNotFound_Throws() {
         when(userRepository.findByUsername("alice")).thenReturn(Optional.empty());
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.register(validRequest))
                 .isInstanceOf(BadRequestException.class)

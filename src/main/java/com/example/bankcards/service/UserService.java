@@ -30,7 +30,7 @@ public class UserService {
             throw new BadRequestException("User with this username already exists");
         }
 
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findByNameIgnoreCase(roleName)
                 .orElseThrow(() -> new NotFoundException("Role not found: " + roleName));
 
         Set<Role> roles = new HashSet<>();
@@ -57,7 +57,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    // 🔥 пагинация и фильтры
     public Page<User> getAllUsers(String username, Boolean enabled, UsernameMatchType matchType, Pageable pageable) {
         if (username != null && enabled != null) {
             return switch (matchType != null ? matchType : UsernameMatchType.CONTAINS) {
@@ -93,7 +92,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findByNameIgnoreCase(roleName)
                 .orElseThrow(() -> new NotFoundException("Role not found: " + roleName));
 
         user.getRoles().add(role);
@@ -103,7 +102,7 @@ public class UserService {
     public User removeRole(Long userId, String roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findByNameIgnoreCase(roleName)
                 .orElseThrow(() -> new NotFoundException("Role not found"));
 
         user.getRoles().remove(role);
