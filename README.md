@@ -196,6 +196,8 @@ docker-compose.yml поднимает:
 | DevOps    | Docker, Docker Compose           |
 | Utils     | AES Encryption, Card masking     |
 
+---
+
 ## 👨‍💻 Автор:
 ✨ **Konstantin Sakhokiia**
 - 📧 kostya4j@gmail.com
