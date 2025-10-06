@@ -122,16 +122,17 @@ docker compose up --build
 | roles    | Set<Role> | Список ролей             |
 | cards    | Set<Card> | Список карт пользователя |
 
+
 ### Card:
-| Поле     | Тип       | Описание                 |
-| -------- | --------- | ------------------------ |
-| id       | Long      | ID пользователя          |
-| username | String    | Уникальный логин         |
-| password | String    | Хэшированный пароль      |
-| fullName | String    | Полное имя               |
-| enabled  | boolean   | Активен / заблокирован   |
-| roles    | Set<Role> | Список ролей             |
-| cards    | Set<Card> | Список карт пользователя |
+| Поле        | Тип          | Описание                 |
+| ----------- | ------------ | -------------------------|
+| id          | Long         | ID карты                 |
+| cardNumber  | String       | Номер карты (зашифрован) |
+| expiryDate  | LocalDate    | Срок действия            |
+| balance     | BigDecimal   | Баланс карты             |
+| status      | CardStatus   | Статус карты             |
+| owner       | User         | Владелец карты           |
+
 
 ### Role:
 | Поле | Тип    | Описание                        |
