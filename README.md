@@ -17,7 +17,8 @@ Maven 3.9+
 ```bash
 git clone https://github.com/kossahokia/bankcards.git
 cd bankcards
-docker compose up --build```
+docker compose up --build
+```
 
 После успешного запуска:
 | Сервис        | URL                                                                                        |
