@@ -195,7 +195,7 @@ docker-compose.yml поднимает:
 | Utils     | AES Encryption, Card masking     |
 
 ## 👨‍💻 Автор:
-*Konstantin Sahokiia*
+✨**Konstantin Sahokiia**
 - 📧 kostya4j@gmail.com
 - 📧 kos.sahokia@yandex.ru
 - 🐙 github.com/kossahokia
