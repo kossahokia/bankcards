@@ -31,10 +31,11 @@ docker compose up --build
 | 📘 Swagger UI | [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
 | 🗄️ PgAdmin   | [http://localhost:8081](http://localhost:8081)                                             |
 
+### Данные для входа в PgAdmin:
 ```text
-Данные для входа в PgAdmin:
 Email: kostya4j@gmail.com
 Пароль: postgres
+Пароль от сервера BankCards DB: postgres
 ```
 
 ## 🧱 Архитектура проекта
