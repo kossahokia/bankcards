@@ -15,8 +15,6 @@ Backend-приложение для управления банковскими 
 - Docker & Docker Compose
 - Maven 3.9+
 
----
-
 ## ▶️ Быстрый запуск через Docker Compose
 
 ```bash
