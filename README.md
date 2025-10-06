@@ -58,7 +58,7 @@ Email: kostya4j@gmail.com
    │  └─📁 service
    └─📂 resources
       └─🧪 application-test.yml
-
+```
 
 🔐 Безопасность:
 JWT (JSON Web Token) — аутентификация без сессий
