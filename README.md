@@ -14,7 +14,7 @@ Maven 3.9+
 ```markdown
 ### ▶️ Быстрый запуск через Docker Compose
 
-```bash
+bash
 git clone https://github.com/kossahokia/bankcards.git
 cd bankcards
 docker compose up --build
