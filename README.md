@@ -30,11 +30,11 @@ docker compose up --build
 | 🗄️ PgAdmin   | [http://localhost:8081](http://localhost:8081)                                             |
 
 ### 🧾 Данные для входа в PgAdmin:
-```text
-*Email: kostya4j@gmail.com*
-*Пароль от pgAdmon: postgres*
-*Пароль от сервера BankCards DB: postgres*
-```
+
+- Email: kostya4j@gmail.com
+- Пароль от pgAdmon: postgres
+- Пароль от сервера BankCards DB: postgres
+
 ---
 
 ## 🧱 Архитектура проекта
