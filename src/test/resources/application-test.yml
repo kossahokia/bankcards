@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16:///bankcards_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+  liquibase:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.test.context: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

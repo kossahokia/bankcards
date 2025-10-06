@@ -1,28 +1,36 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/bankdb
-    username: postgres
-    password: postgres
+    # Works locally (defaults to localhost) and in Docker (we pass DB_HOST=db via compose)
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bankcards}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      idle-timeout: 30000
+      connection-timeout: 30000
 
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: validate       # schema is managed by Liquibase
+    open-in-view: false
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
+        jdbc.lob.non_contextual_creation: true
 
   liquibase:
-    change-log: classpath:db/migration/db.changelog-master.yaml
     enabled: true
+    change-log: classpath:db/migration/db.changelog-master.yaml
 
 jwt:
-  secret: jF7#vP9!wX2z$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY
-  expiration: 3600000
+  secret: ${JWT_SECRET:jF7#vP9!wX2z$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY}
+  expiration: ${JWT_EXPIRATION:3600000}
 
 springdoc:
   api-docs:
@@ -32,4 +40,11 @@ springdoc:
 
 app:
   encryption:
-    secret: djlfwkejfogwewrklwlerkngerewgwre
+    secret: ${APP_ENCRYPTION_SECRET:djlfwkejfogwewrklwlerkngerewgwre}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.jdbc.core: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN

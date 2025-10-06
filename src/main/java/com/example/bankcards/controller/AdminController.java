@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class AdminController {
 
     @Operation(summary = "Create a new user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User successfully created",
+            @ApiResponse(responseCode = "201", description = "User successfully created",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body",
@@ -59,9 +60,8 @@ public class AdminController {
                 req.getRoleName(),
                 req.isEnabled()
         );
-        return ResponseEntity.ok(
-                new UserDto(user.getId(), user.getUsername(), user.getFullName(), user.isEnabled())
-        );
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new UserDto(user.getId(), user.getUsername(), user.getFullName(), user.isEnabled()));
     }
 
     @Operation(summary = "Get all users (with filters and pagination)")

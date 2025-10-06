@@ -63,14 +63,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
-                        // если нет токена → 401
                         .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                        // если нет прав → 403
                         .accessDeniedHandler((req, res, ex) -> res.sendError(HttpServletResponse.SC_FORBIDDEN))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // чтобы работала H2 console
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
