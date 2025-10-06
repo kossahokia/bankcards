@@ -58,7 +58,6 @@ docker compose up --build
    │  ├─📁 controller
    │  └─📁 service
    └─📂 resources
-      └─🧪 application-test.yml
 ```
 
 ## 🔐 Безопасность
@@ -67,11 +66,11 @@ docker compose up --build
 - BCrypt — безопасное хранение паролей
 - CORS — включён в SecurityConfig
 
-### Роли:
+### ⚖️ Роли:
 - ADMIN — полное управление пользователями и картами
 - USER — просмотр и переводы между своими картами
 
-### Администратор по умолчанию (из миграций Liquibase):
+### 🧑‍💼 Администратор по умолчанию (из миграций Liquibase):
 - username: admin
 - password: admin123
 
