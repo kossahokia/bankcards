@@ -31,7 +31,6 @@ docker compose up --build
 Email: kostya4j@gmail.com
 Пароль: postgres
 
-🧱 Архитектура проекта
 ## 🧱 Архитектура проекта
 
 ```text
