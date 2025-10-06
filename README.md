@@ -199,7 +199,7 @@ docker-compose.yml поднимает:
 ---
 
 ## 👨‍💻 Автор:
-✨ **Konstantin Sakhokiia**
+✨ **Konstantin Sakhokiia — Java Backend Engineer**
 - 📧 kostya4j@gmail.com
 - 📧 kos.sahokia@yandex.ru
 - 🐙 github.com/kossahokia
