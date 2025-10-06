@@ -15,7 +15,7 @@ Backend-приложение для управления банковскими 
 - Docker & Docker Compose
 - Maven 3.9+
 
-## ▶️ Быстрый запуск через Docker Compose
+### ▶️ Быстрый запуск через Docker Compose
 
 ```bash
 git clone https://github.com/kossahokia/bankcards.git
@@ -29,7 +29,7 @@ docker compose up --build
 | 📘 Swagger UI | [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) |
 | 🗄️ PgAdmin   | [http://localhost:8081](http://localhost:8081)                                             |
 
-## Данные для входа в PgAdmin:
+### 🧾 Данные для входа в PgAdmin:
 ```text
 Email: kostya4j@gmail.com
 Пароль: postgres
