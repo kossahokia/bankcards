@@ -142,14 +142,15 @@ Role:
 Проверка срока действия карты выполняется в CardExpiryUtil
 
 🧠 Конфигурация:
-application.yml
+application.yml:
 PostgreSQL (через Docker)
 Liquibase миграции
 JWT настройки (secret, expiration)
 Логирование уровней: WARN / INFO
-application-test.yml
+
+application-test.yml:
 Testcontainers (PostgreSQL 16)
-Liquibase отключён
+В интеграционном тесте Liquibase отключён намеренно (схема создаётся из JPA)
 Автогенерация схемы Hibernate
 
 🧪 Тестирование:
