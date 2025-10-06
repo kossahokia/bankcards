@@ -11,9 +11,12 @@ Java 21+
 Docker & Docker Compose
 Maven 3.9+
 
-▶️ Быстрый запуск через Docker Compose:
-git clone https://github.com/kossahokia/bankcards.git 
-cd bankcards 
+```markdown
+### ▶️ Быстрый запуск через Docker Compose
+
+```bash
+git clone https://github.com/kossahokia/bankcards.git
+cd bankcards
 docker compose up --build
 
 После успешного запуска:
