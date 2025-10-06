@@ -161,12 +161,14 @@ Testcontainers (PostgreSQL 16)
 ## 🧪 Тестирование:
 | Тип                  | Кол-во                                      | Описание                    |
 | -------------------- | ------------------------------------------- | --------------------------- |
-| **Unit-тесты**       | ~120                                        | Сервисы и контроллеры       |
+| **Unit-тесты**       | 111                                         | Сервисы и контроллеры       |
 | **Integration-тест** | 1                                           | Smoke-тест с Testcontainers |
 | **Фреймворки**       | JUnit 5, Mockito, AssertJ, Spring Boot Test |                             |
 
 ### Запуск тестов:
+```bash
 mvn clean test
+```
 
 ## 🐳 Docker окружение:
 docker-compose.yml поднимает:
@@ -195,7 +197,7 @@ docker-compose.yml поднимает:
 | Utils     | AES Encryption, Card masking     |
 
 ## 👨‍💻 Автор:
-✨**Konstantin Sahokiia**
+✨ **Konstantin Sakhokiia**
 - 📧 kostya4j@gmail.com
 - 📧 kos.sahokia@yandex.ru
 - 🐙 github.com/kossahokia
