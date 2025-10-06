@@ -1,9 +1,58 @@
-# 
-# docker-compose.yml — определяет сервисы для разработки и тестирования.
+services:
+  db:
+    image: postgres:16
+    container_name: bankcards-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-bankcards}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      TZ: Europe/Moscow
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-bankcards}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-Что нужно сделать:
-  - Настроить сервисы для:
-      - PostgreSQL (или MySQL) с начальной базой.
-      - Приложения Spring Boot (если нужно).
-  - Открыть нужные порты (например, 5432, 8080).
-  - Настроить volume для хранения данных БД.
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: bankcards-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-kostya4j@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-postgres}
+    ports:
+      - "${PGADMIN_PORT:-8081}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bankcards-app
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-bankcards}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: '${JWT_SECRET:-jF7#vP9!wX2z\$Q3mB8@tL6nE1hR4kU7oC0yG5dZ2sT9pM1vJ8rN4qH6lA5xY}'
+      APP_ENCRYPTION_SECRET: ${APP_ENCRYPTION_SECRET:-djlfwkejfogwewrklwlerkngerewgwre}
+      TZ: Europe/Moscow
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+volumes:
+  pgdata:

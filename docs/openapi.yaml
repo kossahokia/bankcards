@@ -1,1 +1,452 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.0.3
+info:
+  title: BankCards REST API
+  description: >
+    Backend-приложение для управления банковскими картами.  
+    Реализует функционал аутентификации, CRUD для пользователей и карт, а также переводы между собственными картами.
+  version: "1.0.0"
+  contact:
+    name: Konstantin Sahokia
+    url: https://github.com/kossahokia
+    email: kostya4j@gmail.com
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: Аутентификация и регистрация пользователей
+  - name: Admin
+    description: Управление пользователями и картами (роль ADMIN)
+  - name: Cards
+    description: Действия с банковскими картами пользователя
+
+paths:
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      summary: Аутентификация пользователя и получение JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Успешная аутентификация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+        "400":
+          description: Некорректное тело запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        "401":
+          description: Неверные учетные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        "201":
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        "400":
+          description: Ошибка валидации или бизнес-логики
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: Получить список пользователей
+      parameters:
+        - in: query
+          name: username
+          schema: { type: string }
+        - in: query
+          name: matchType
+          schema: { type: string, enum: [EXACT, CONTAINS, STARTS_WITH, ENDS_WITH] }
+        - in: query
+          name: enabled
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403": { $ref: '#/components/responses/Forbidden' }
+
+    post:
+      tags: [Admin]
+      summary: Создать нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        "201":
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        "400": { $ref: '#/components/responses/BadRequest' }
+
+  /api/admin/users/{id}:
+    get:
+      tags: [Admin]
+      summary: Получить пользователя по ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        "404": { $ref: '#/components/responses/NotFound' }
+
+    delete:
+      tags: [Admin]
+      summary: Удалить пользователя
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "204": { description: Пользователь удалён }
+        "404": { $ref: '#/components/responses/NotFound' }
+
+  /api/admin/users/{id}/status:
+    patch:
+      tags: [Admin]
+      summary: Изменить активность пользователя
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: enabled
+          required: true
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: Статус обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        "404": { $ref: '#/components/responses/NotFound' }
+
+  /api/admin/users/{id}/role:
+    patch:
+      tags: [Admin]
+      summary: Назначить роль пользователю
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: roleName
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Роль назначена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        "404": { $ref: '#/components/responses/NotFound' }
+
+  /api/admin/users/{id}/role/remove:
+    patch:
+      tags: [Admin]
+      summary: Удалить роль у пользователя
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: roleName
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Роль удалена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /api/admin/cards:
+    get:
+      tags: [Admin]
+      summary: Получить все карты
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+      responses:
+        "200":
+          description: Список карт
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardResponse'
+    post:
+      tags: [Admin]
+      summary: Создать карту пользователю
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCardRequest'
+      responses:
+        "200":
+          description: Карта создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+
+  /api/admin/cards/{id}/status:
+    patch:
+      tags: [Admin]
+      summary: Обновить статус карты
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+        - in: query
+          name: status
+          required: true
+          schema: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+      responses:
+        "200":
+          description: Статус карты обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        "404": { $ref: '#/components/responses/NotFound' }
+
+  /api/cards:
+    get:
+      tags: [Cards]
+      summary: Получить карты текущего пользователя
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+      responses:
+        "200":
+          description: Карты получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardResponse'
+
+  /api/cards/{id}/balance:
+    get:
+      tags: [Cards]
+      summary: Получить баланс карты
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Баланс карты
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+        "404": { $ref: '#/components/responses/NotFound' }
+
+  /api/cards/{id}/request-block:
+    post:
+      tags: [Cards]
+      summary: Запросить блокировку карты
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Карта заблокирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+
+  /api/cards/transfer:
+    post:
+      tags: [Cards]
+      summary: Перевод между своими картами
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        "200": { description: Перевод выполнен }
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "422": { description: Недостаточно средств }
+
+components:
+  responses:
+    BadRequest:
+      description: Ошибка валидации или неверные данные
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Unauthorized:
+      description: Неавторизован
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Forbidden:
+      description: Нет доступа
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+
+  schemas:
+    ApiErrorResponse:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer, example: 400 }
+        error: { type: string, example: Bad Request }
+        message: { type: string }
+        path: { type: string }
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    JwtResponse:
+      type: object
+      properties:
+        token: { type: string }
+
+    RegisterRequest:
+      type: object
+      required: [username, password, fullName]
+      properties:
+        username: { type: string }
+        password: { type: string }
+        fullName: { type: string }
+
+    RegisterResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        fullName: { type: string }
+
+    CreateUserRequest:
+      type: object
+      required: [username, password, fullName, roleName]
+      properties:
+        username: { type: string }
+        password: { type: string }
+        fullName: { type: string }
+        roleName: { type: string }
+        enabled: { type: boolean }
+
+    UserDto:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        fullName: { type: string }
+        enabled: { type: boolean }
+
+    CreateCardRequest:
+      type: object
+      required: [cardNumber, ownerUsername, expiryDate, initialBalance]
+      properties:
+        cardNumber: { type: string, example: "4111111111111111" }
+        ownerUsername: { type: string }
+        expiryDate: { type: string, format: date }
+        initialBalance: { type: number, format: double }
+
+    CardResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        maskedNumber: { type: string, example: "**** **** **** 1234" }
+        status: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+        expiryDate: { type: string, format: date }
+        balance: { type: number, format: double }
+        ownerUsername: { type: string }
+
+    TransferRequest:
+      type: object
+      required: [fromCardId, toCardId, amount]
+      properties:
+        fromCardId: { type: integer }
+        toCardId: { type: integer }
+        amount: { type: number, format: double }

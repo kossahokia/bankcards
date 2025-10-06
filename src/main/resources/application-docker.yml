@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/${DB_NAME:bankcards}
+    username: ${DB_USER:bankcards}
+    password: ${DB_PASSWORD:bankcards}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/migration/db.changelog-master.yaml
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
