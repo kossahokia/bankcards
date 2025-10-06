@@ -25,11 +25,16 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-kostya4j@gmail.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-postgres}
+      TZ: Europe/Moscow
     ports:
       - "${PGADMIN_PORT:-8081}:80"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_servers.json:/pgadmin4/servers.json
+
 
   app:
     build:
@@ -53,6 +58,7 @@ services:
       db:
         condition: service_healthy
 
-
 volumes:
   pgdata:
+  pgadmin_data:
+

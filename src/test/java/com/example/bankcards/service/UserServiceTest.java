@@ -63,7 +63,7 @@ class UserServiceTest {
     @DisplayName("✅ createUser success")
     void createUser_Success() {
         when(userRepository.findByUsername("alice")).thenReturn(Optional.empty());
-        when(roleRepository.findByName("USER")).thenReturn(Optional.of(role));
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         User saved = userService.createUser("alice", "pwd", "Alice", "USER", true);
@@ -89,7 +89,7 @@ class UserServiceTest {
     @DisplayName("❌ createUser throws if role not found")
     void createUser_RoleNotFound_Throws() {
         when(userRepository.findByUsername("alice")).thenReturn(Optional.empty());
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
                 userService.createUser("alice", "pwd", "Alice", "USER", true)
@@ -240,7 +240,7 @@ class UserServiceTest {
     @DisplayName("✅ assignRole success")
     void assignRole_Success() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.of(role));
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         User updated = userService.assignRole(1L, "USER");
@@ -260,7 +260,7 @@ class UserServiceTest {
     @DisplayName("❌ assignRole role not found")
     void assignRole_RoleNotFound_Throws() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
         assertThatThrownBy(() -> userService.assignRole(1L, "USER"))
                 .isInstanceOf(NotFoundException.class);
     }
@@ -272,7 +272,7 @@ class UserServiceTest {
     void removeRole_Success() {
         user.getRoles().add(role);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.of(role));
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.of(role));
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         User updated = userService.removeRole(1L, "USER");
@@ -292,7 +292,7 @@ class UserServiceTest {
     @DisplayName("❌ removeRole role not found")
     void removeRole_RoleNotFound_Throws() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
         assertThatThrownBy(() -> userService.removeRole(1L, "USER"))
                 .isInstanceOf(NotFoundException.class);
     }
@@ -377,7 +377,7 @@ class UserServiceTest {
     @DisplayName("❌ assignRole role not found includes role name in message")
     void assignRole_RoleNotFound_MessageCheck() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.assignRole(1L, "USER"))
                 .isInstanceOf(NotFoundException.class)
@@ -387,7 +387,7 @@ class UserServiceTest {
     @DisplayName("❌ removeRole role not found includes correct message")
     void removeRole_RoleNotFound_MessageCheck() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(roleRepository.findByName("USER")).thenReturn(Optional.empty());
+        when(roleRepository.findByNameIgnoreCase("USER")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.removeRole(1L, "USER"))
                 .isInstanceOf(NotFoundException.class)

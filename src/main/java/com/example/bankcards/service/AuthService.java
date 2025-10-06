@@ -52,7 +52,7 @@ public class AuthService {
             throw new BadRequestException("Username is already taken");
         }
 
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByNameIgnoreCase("USER")
                 .orElseThrow(() -> new BadRequestException("Default role USER not found"));
 
         User user = User.builder()
