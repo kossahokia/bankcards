@@ -35,4 +35,4 @@ src/main/resources/*.local.*
 # Liquibase history
 /liquibase-release.properties
 
-src/main/java/com/example/bankcards/util/PasswordGenerator.java
+.env
