@@ -12,7 +12,7 @@ Docker & Docker Compose
 Maven 3.9+
 
 ```markdown
-### ▶️ Быстрый запуск через Docker Compose
+▶️ Быстрый запуск через Docker Compose
 
 bash
 git clone https://github.com/kossahokia/bankcards.git
