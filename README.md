@@ -31,9 +31,9 @@ docker compose up --build
 
 ### 🧾 Данные для входа в PgAdmin:
 ```text
-Email: kostya4j@gmail.com
-Пароль: postgres
-Пароль от сервера BankCards DB: postgres
+*Email: kostya4j@gmail.com*
+*Пароль от pgAdmon: postgres*
+*Пароль от сервера BankCards DB: postgres*
 ```
 ---
 
@@ -76,8 +76,10 @@ ADMIN — полное управление пользователями и ка
 USER — просмотр и переводы между своими картами
 
 ### Администратор по умолчанию (из миграций Liquibase):
-username: admin
-password: admin123
+```text
+*username: admin*
+*password: admin123*
+```
 
 ## 💳 Основные функции API:
 🧩 AuthController (/api/auth):
