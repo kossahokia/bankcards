@@ -28,24 +28,33 @@ Email: kostya4j@gmail.com
 Пароль: postgres
 
 🧱 Архитектура проекта
-src/
-├── main/java/com/example/bankcards/
-│   ├── controller/        # REST-контроллеры (Auth, Admin, Card)
-│   ├── service/           # Бизнес-логика и операции
-│   ├── entity/            # JPA-сущности (User, Role, Card)
-│   ├── repository/        # Spring Data JPA репозитории
-│   ├── security/          # JWT, фильтры, UserDetailsServiceImpl
-│   ├── config/            # Security, Locale, OpenAPI, Swagger
-│   └── util/              # Шифрование, маскирование, валидация
-│
-├── main/resources/
-│   ├── application.yml           # Конфигурация среды
-│   ├── db/migration/             # Liquibase миграции
-│   └── docs/openapi.yaml         # OpenAPI спецификация
-│
-└── test/
-├── ...                       # Unit и Integration тесты
-└── resources/application-test.yml
+## 🧱 Архитектура проекта
+
+```text
+📁 src
+├─📂 main
+│  ├─📂 java/com/example/bankcards
+│  │  ├─📁 config
+│  │  ├─📁 controller
+│  │  ├─📁 dto
+│  │  │   └─📁 enums
+│  │  ├─📁 entity
+│  │  │   └─📁 enums
+│  │  ├─📁 exception
+│  │  │   └─📁 customexceptions
+│  │  ├─📁 repository
+│  │  ├─📁 security
+│  │  ├─📁 service
+│  │  └─📁 util
+│  └─📂 resources
+│      └─📂 db/migration
+└─📂 test
+   ├─📂 java/com/example/bankcards
+   │  ├─📁 controller
+   │  └─📁 service
+   └─📂 resources
+      └─🧪 application-test.yml
+
 
 🔐 Безопасность:
 JWT (JSON Web Token) — аутентификация без сессий
