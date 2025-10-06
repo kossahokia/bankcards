@@ -33,8 +33,6 @@ docker compose up --build
 - Пароль от pgAdmin: postgres
 - Пароль от сервера BankCards DB: postgres
 
----
-
 ## 🧱 Архитектура проекта
 
 ```text
