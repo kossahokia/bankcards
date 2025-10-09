@@ -24,6 +24,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Administrative controller providing endpoints for managing users and cards.
+ * <p>
+ * Accessible only to users with the {@code ADMIN} role.
+ * Provides CRUD operations on users and cards, as well as role management
+ * and account enable/disable toggling.
+ * </p>
+ *
+ * @see com.example.bankcards.service.UserService
+ * @see com.example.bankcards.service.CardService
+ * @since 1.0
+ */
 @Tag(name = "Admin", description = "Endpoints for managing users and cards (admin only)")
 @RestController
 @RequestMapping("/api/admin")
@@ -34,20 +46,14 @@ public class AdminController {
     private final CardService cardService;
     private final UserService userService;
 
-    // ---------- USERS ----------
+    // ---------- USER MANAGEMENT ----------
 
     @Operation(summary = "Create a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User successfully created",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))),
-            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden: admin role required",
+            @ApiResponse(responseCode = "400", description = "Invalid request body or username already taken",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
@@ -64,18 +70,8 @@ public class AdminController {
                 .body(new UserDto(user.getId(), user.getUsername(), user.getFullName(), user.isEnabled()));
     }
 
-    @Operation(summary = "Get all users (with filters and pagination)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Users successfully retrieved",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden: admin role required",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
+    @Operation(summary = "Retrieve all users", description = "Supports username filtering and enabled status flag.")
+    @ApiResponse(responseCode = "200", description = "Users successfully retrieved")
     @GetMapping("/users")
     public ResponseEntity<Page<UserDto>> getAllUsers(
             @RequestParam(required = false) String username,
@@ -90,10 +86,8 @@ public class AdminController {
     }
 
     @Operation(summary = "Get user by ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User successfully retrieved",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
@@ -107,7 +101,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Delete user by ID")
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User successfully deleted"),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
@@ -119,11 +113,9 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Update user enabled status")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User status successfully updated",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+    @Operation(summary = "Toggle user enabled status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User status updated"),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
@@ -137,10 +129,8 @@ public class AdminController {
     }
 
     @Operation(summary = "Assign role to user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Role successfully assigned",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role assigned"),
             @ApiResponse(responseCode = "404", description = "User or role not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
@@ -154,17 +144,14 @@ public class AdminController {
     }
 
     @Operation(summary = "Remove role from user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Role successfully removed",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role removed"),
             @ApiResponse(responseCode = "404", description = "User or role not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PatchMapping("/users/{id}/role/remove")
-    public ResponseEntity<UserDto> removeRole(@PathVariable Long id,
-                                              @RequestParam String roleName) {
+    public ResponseEntity<UserDto> removeRole(@PathVariable Long id, @RequestParam String roleName) {
         User updated = userService.removeRole(id, roleName);
         return ResponseEntity.ok(
                 new UserDto(updated.getId(), updated.getUsername(), updated.getFullName(), updated.isEnabled())
@@ -172,34 +159,25 @@ public class AdminController {
     }
 
     @Operation(summary = "Get cards of a specific user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cards successfully retrieved",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CardResponse.class))),
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cards retrieved"),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/users/{id}/cards")
-    public ResponseEntity<Page<CardResponse>> getUserCards(@PathVariable Long id,
-                                                           @ParameterObject Pageable pageable) {
-        userService.getUserById(id); // проверка на существование
+    public ResponseEntity<Page<CardResponse>> getUserCards(@PathVariable Long id, @ParameterObject Pageable pageable) {
+        userService.getUserById(id);
         return ResponseEntity.ok(cardService.getCardsByUserId(id, pageable));
     }
 
-    // ---------- CARDS ----------
+    // ---------- CARD MANAGEMENT ----------
 
     @Operation(summary = "Create a new card for user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Card successfully created",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CardResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Card created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or duplicate card"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PostMapping("/cards")
     public ResponseEntity<CardResponse> createCard(@Valid @RequestBody CreateCardRequest req) {
@@ -210,12 +188,8 @@ public class AdminController {
         return ResponseEntity.ok(cardService.createCardWithOwnerUsername(card, req.getOwnerUsername()));
     }
 
-    @Operation(summary = "Get all cards (with optional status filter)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cards successfully retrieved",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CardResponse.class)))
-    })
+    @Operation(summary = "Retrieve all cards (with optional status filter)")
+    @ApiResponse(responseCode = "200", description = "Cards retrieved")
     @GetMapping("/cards")
     public ResponseEntity<Page<CardResponse>> getAllCards(@ParameterObject Pageable pageable,
                                                           @RequestParam(required = false) CardStatus status) {
@@ -227,13 +201,9 @@ public class AdminController {
     }
 
     @Operation(summary = "Update card status")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Card status successfully updated",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CardResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Card not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Status updated"),
+            @ApiResponse(responseCode = "404", description = "Card not found")
     })
     @PatchMapping("/cards/{id}/status")
     public ResponseEntity<CardResponse> updateCardStatus(@PathVariable Long id, @RequestParam CardStatus status) {
@@ -241,11 +211,9 @@ public class AdminController {
     }
 
     @Operation(summary = "Delete card by ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Card successfully deleted"),
-            @ApiResponse(responseCode = "404", description = "Card not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Card deleted"),
+            @ApiResponse(responseCode = "404", description = "Card not found")
     })
     @DeleteMapping("/cards/{id}")
     public ResponseEntity<Void> deleteCard(@PathVariable Long id) {

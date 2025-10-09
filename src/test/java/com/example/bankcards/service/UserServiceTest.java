@@ -23,6 +23,38 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link UserService}.
+ * <p>
+ * Validates user management logic including CRUD operations, role assignments,
+ * and dynamic user filtering via {@link UsernameMatchType}.
+ * </p>
+ *
+ * <h3>Test coverage:</h3>
+ * <ul>
+ *   <li>✅ <b>User creation</b> — verifies role lookup, password encoding, and duplicate prevention.</li>
+ *   <li>✅ <b>Retrieval</b> — {@code getUserById}, {@code findByUsername}, and pagination via {@code getAllUsers()}.</li>
+ *   <li>✅ <b>Filtering</b> — all {@link UsernameMatchType} branches (EQUALS, STARTS, CONTAINS, default/null).</li>
+ *   <li>✅ <b>Enable/disable logic</b> — correctly reflects boolean flag transformations in returned DTOs.</li>
+ *   <li>✅ <b>Role management</b> — assignment and removal, including error propagation when role or user missing.</li>
+ *   <li>❌ <b>Error handling</b> — for not found users, missing roles, and existing usernames.</li>
+ * </ul>
+ *
+ * <h3>Testing strategy:</h3>
+ * <ul>
+ *   <li>Isolated unit tests — no Spring context.</li>
+ *   <li>All dependencies mocked via Mockito.</li>
+ *   <li>Assertions performed using AssertJ fluent API.</li>
+ *   <li>Branch coverage ensured through multiple {@code getAllUsers()} scenarios.</li>
+ * </ul>
+ *
+ * @see com.example.bankcards.repository.UserRepository
+ * @see com.example.bankcards.repository.RoleRepository
+ * @see com.example.bankcards.dto.enums.UsernameMatchType
+ * @see com.example.bankcards.exception.customexceptions.BadRequestException
+ * @see com.example.bankcards.exception.customexceptions.NotFoundException
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 

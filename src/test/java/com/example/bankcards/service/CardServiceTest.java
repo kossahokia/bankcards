@@ -29,6 +29,33 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link CardService}.
+ * <p>
+ * Covers core business logic for card management, including:
+ * </p>
+ * <ul>
+ *   <li>Creating cards with encrypted numbers and validating duplicates.</li>
+ *   <li>Retrieving cards (by owner, user ID, or status) and mapping to {@link CardResponse}.</li>
+ *   <li>Handling deletion, blocking requests, and status updates with pessimistic locking.</li>
+ *   <li>Proper exception propagation ({@link BadRequestException}, {@link NotFoundException}, {@link CorruptedDataException}).</li>
+ * </ul>
+ *
+ * <h3>Testing strategy:</h3>
+ * <ul>
+ *   <li>Pure unit tests — Spring context not loaded.</li>
+ *   <li>Dependencies mocked via Mockito.</li>
+ *   <li>Static methods ({@link CardExpiryUtil#isExpired(Card)}) mocked using {@code mockStatic}.</li>
+ *   <li>Assertions performed via AssertJ fluent API.</li>
+ * </ul>
+ *
+ * @see com.example.bankcards.repository.CardRepository
+ * @see com.example.bankcards.repository.UserRepository
+ * @see com.example.bankcards.util.EncryptionUtil
+ * @see com.example.bankcards.util.CardMaskUtil
+ * @see com.example.bankcards.util.CardExpiryUtil
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class CardServiceTest {
 

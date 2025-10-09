@@ -2,6 +2,17 @@ databaseChangeLog:
   - changeSet:
       id: 1.3-insert-admin
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+          - tableExists:
+              tableName: users
+          - tableExists:
+              tableName: user_roles
+          - not:
+              sqlCheck:
+                expectedResult: 1
+                sql: SELECT COUNT(*) FROM users WHERE username = 'admin'
       changes:
         - insert:
             tableName: users

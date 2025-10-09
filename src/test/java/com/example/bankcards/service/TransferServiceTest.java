@@ -25,6 +25,48 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link TransferService}.
+ * <p>
+ * Validates money-transfer logic between user cards,
+ * ensuring all business rules and data-integrity constraints are enforced.
+ * </p>
+ *
+ * <h3>Test coverage:</h3>
+ * <ul>
+ *   <li>✅ Successful transfer between active, non-expired cards.</li>
+ *   <li>❌ Invalid input handling:
+ *       <ul>
+ *         <li>Non-positive transfer amount.</li>
+ *         <li>Same card IDs.</li>
+ *         <li>Cards belonging to different users.</li>
+ *       </ul>
+ *   </li>
+ *   <li>❌ Validation failures:
+ *       <ul>
+ *         <li>Inactive or blocked cards.</li>
+ *         <li>Expired cards.</li>
+ *         <li>Insufficient balance.</li>
+ *       </ul>
+ *   </li>
+ *   <li>❌ NotFound handling for missing source or destination cards.</li>
+ * </ul>
+ *
+ * <h3>Testing strategy:</h3>
+ * <ul>
+ *   <li>Pure unit tests — Spring context not loaded.</li>
+ *   <li>Dependencies mocked via Mockito.</li>
+ *   <li>Static utility {@link CardExpiryUtil} mocked via {@code mockStatic}.</li>
+ *   <li>Assertions performed using AssertJ fluent API.</li>
+ * </ul>
+ *
+ * @see com.example.bankcards.repository.CardRepository
+ * @see com.example.bankcards.util.CardExpiryUtil
+ * @see com.example.bankcards.exception.customexceptions.UnprocessableEntityException
+ * @see com.example.bankcards.exception.customexceptions.BadRequestException
+ * @see com.example.bankcards.exception.customexceptions.NotFoundException
+ * @since 1.0
+ */
 @ExtendWith(MockitoExtension.class)
 class TransferServiceTest {
 
