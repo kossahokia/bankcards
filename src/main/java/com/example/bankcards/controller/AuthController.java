@@ -1,7 +1,7 @@
 package com.example.bankcards.controller;
 
-import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.dto.JwtResponse;
+import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.dto.RegisterRequest;
 import com.example.bankcards.dto.RegisterResponse;
 import com.example.bankcards.exception.ApiErrorResponse;
