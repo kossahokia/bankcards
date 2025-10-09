@@ -2,6 +2,18 @@ databaseChangeLog:
   - changeSet:
       id: 5
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        and:
+          - tableExists:
+              tableName: roles
+          - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM roles WHERE name = 'USER'
+          - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM roles WHERE name = 'ADMIN'
       changes:
         - insert:
             tableName: roles

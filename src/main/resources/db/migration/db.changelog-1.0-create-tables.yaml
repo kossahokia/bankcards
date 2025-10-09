@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 1
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        not:
+          tableExists:
+            tableName: users
       changes:
         - createTable:
             tableName: users
@@ -34,6 +40,12 @@ databaseChangeLog:
   - changeSet:
       id: 2
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        not:
+          tableExists:
+            tableName: roles
       changes:
         - createTable:
             tableName: roles
@@ -54,6 +66,12 @@ databaseChangeLog:
   - changeSet:
       id: 3
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        not:
+          tableExists:
+            tableName: user_roles
       changes:
         - createTable:
             tableName: user_roles
@@ -87,6 +105,12 @@ databaseChangeLog:
   - changeSet:
       id: 4
       author: dev
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        not:
+          tableExists:
+            tableName: cards
       changes:
         - createTable:
             tableName: cards

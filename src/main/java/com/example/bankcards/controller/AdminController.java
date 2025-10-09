@@ -24,6 +24,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Administrative controller providing endpoints for managing users and cards.
+ * <p>
+ * Accessible only to users with the {@code ADMIN} role.
+ * Provides CRUD operations on users and cards, as well as role management
+ * and account enable/disable toggling.
+ * </p>
+ *
+ * @see com.example.bankcards.service.UserService
+ * @see com.example.bankcards.service.CardService
+ * @since 1.0
+ */
 @Tag(name = "Admin", description = "Endpoints for managing users and cards (admin only)")
 @RestController
 @RequestMapping("/api/admin")
@@ -34,14 +46,14 @@ public class AdminController {
     private final CardService cardService;
     private final UserService userService;
 
-    // ---------- USERS ----------
+    // ---------- USER MANAGEMENT ----------
 
     @Operation(summary = "Create a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User successfully created",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))),
-            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body",
+            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body or username already taken",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
@@ -64,7 +76,8 @@ public class AdminController {
                 .body(new UserDto(user.getId(), user.getUsername(), user.getFullName(), user.isEnabled()));
     }
 
-    @Operation(summary = "Get all users (with filters and pagination)")
+    @Operation(summary = "Get all users (with filters and pagination)",
+            description = "Supports username filtering, match type and enabled status flag.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users successfully retrieved",
                     content = @Content(mediaType = "application/json",
@@ -119,7 +132,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Update user enabled status")
+    @Operation(summary = "Toggle user enabled status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User status successfully updated",
                     content = @Content(mediaType = "application/json",
@@ -163,8 +176,7 @@ public class AdminController {
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PatchMapping("/users/{id}/role/remove")
-    public ResponseEntity<UserDto> removeRole(@PathVariable Long id,
-                                              @RequestParam String roleName) {
+    public ResponseEntity<UserDto> removeRole(@PathVariable Long id, @RequestParam String roleName) {
         User updated = userService.removeRole(id, roleName);
         return ResponseEntity.ok(
                 new UserDto(updated.getId(), updated.getUsername(), updated.getFullName(), updated.isEnabled())
@@ -181,20 +193,19 @@ public class AdminController {
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/users/{id}/cards")
-    public ResponseEntity<Page<CardResponse>> getUserCards(@PathVariable Long id,
-                                                           @ParameterObject Pageable pageable) {
-        userService.getUserById(id); // проверка на существование
+    public ResponseEntity<Page<CardResponse>> getUserCards(@PathVariable Long id, @ParameterObject Pageable pageable) {
+        userService.getUserById(id);
         return ResponseEntity.ok(cardService.getCardsByUserId(id, pageable));
     }
 
-    // ---------- CARDS ----------
+    // ---------- CARD MANAGEMENT ----------
 
     @Operation(summary = "Create a new card for user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Card successfully created",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CardResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body",
+            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request or duplicate card number",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "User not found",

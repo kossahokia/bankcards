@@ -26,6 +26,29 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link AuthService}.
+ * <p>
+ * Verifies authentication and registration workflows, covering:
+ * </p>
+ * <ul>
+ *   <li>Successful authentication and JWT generation.</li>
+ *   <li>Registration of a new user with the default role {@code USER}.</li>
+ *   <li>Validation and business rule violations (blank fields, duplicates, missing role).</li>
+ *   <li>Error propagation from {@link AuthenticationManager} and {@link JwtTokenProvider}.</li>
+ * </ul>
+ *
+ * <h3>Testing strategy:</h3>
+ * <ul>
+ *   <li>Isolated unit tests using Mockito.</li>
+ *   <li>No Spring context; dependencies are mocked.</li>
+ *   <li>Assertions via AssertJ fluent API.</li>
+ * </ul>
+ *
+ * @see com.example.bankcards.security.JwtTokenProvider
+ * @see com.example.bankcards.repository.UserRepository
+ * @see com.example.bankcards.repository.RoleRepository
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
@@ -61,7 +84,7 @@ class AuthServiceTest {
                 .build();
     }
 
-    // ---------------- AUTHENTICATE -----------------
+    // ---------- AUTHENTICATION ----------
 
     @Test
     @DisplayName("✅ authenticate success returns token")
@@ -92,7 +115,7 @@ class AuthServiceTest {
                 .hasMessageContaining("Invalid username or password");
     }
 
-    // ---------------- REGISTER -----------------
+    // ---------- REGISTRATION ----------
 
     @Test
     @DisplayName("✅ register success saves user and returns response")
@@ -161,6 +184,7 @@ class AuthServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Default role USER not found");
     }
+
     @Test
     @DisplayName("⚠️ authenticate throws ClassCastException if principal not UserDetailsImpl")
     void authenticate_PrincipalWrongType_ThrowsClassCast() {
@@ -171,12 +195,14 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.authenticate("john", "pass"))
                 .isInstanceOf(ClassCastException.class);
     }
+
     @Test
     @DisplayName("❌ register throws if username is null")
     void register_NullUsername_Throws() {
         RegisterRequest req = new RegisterRequest();
         req.setUsername(null);
         req.setPassword("pwd");
+
         assertThatThrownBy(() -> authService.register(req))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("must not be blank");
@@ -188,9 +214,9 @@ class AuthServiceTest {
         RegisterRequest req = new RegisterRequest();
         req.setUsername("alice");
         req.setPassword(null);
+
         assertThatThrownBy(() -> authService.register(req))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("must not be blank");
     }
-
 }
