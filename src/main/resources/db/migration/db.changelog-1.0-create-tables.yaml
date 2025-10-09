@@ -5,9 +5,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: HALT
-          - not:
-              tableExists:
-                tableName: users
+        not:
+          tableExists:
+            tableName: users
       changes:
         - createTable:
             tableName: users
@@ -43,9 +43,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: HALT
-          - not:
-              tableExists:
-                tableName: roles
+        not:
+          tableExists:
+            tableName: roles
       changes:
         - createTable:
             tableName: roles
@@ -69,9 +69,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: HALT
-          - not:
-              tableExists:
-                tableName: user_roles
+        not:
+          tableExists:
+            tableName: user_roles
       changes:
         - createTable:
             tableName: user_roles
@@ -108,9 +108,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: HALT
-          - not:
-              tableExists:
-                tableName: cards
+        not:
+          tableExists:
+            tableName: cards
       changes:
         - createTable:
             tableName: cards

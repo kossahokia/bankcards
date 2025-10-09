@@ -5,16 +5,15 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: HALT
+        and:
           - tableExists:
               tableName: roles
-          - not:
-              sqlCheck:
-                expectedResult: 1
-                sql: SELECT COUNT(*) FROM roles WHERE name = 'USER'
-          - not:
-              sqlCheck:
-                expectedResult: 1
-                sql: SELECT COUNT(*) FROM roles WHERE name = 'ADMIN'
+          - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM roles WHERE name = 'USER'
+          - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM roles WHERE name = 'ADMIN'
       changes:
         - insert:
             tableName: roles

@@ -1,23 +1,24 @@
 databaseChangeLog:
   - changeSet:
-      id: 1.2
+      id: 6
       author: dev
       preConditions:
         onFail: MARK_RAN
         onError: HALT
+        and:
           - tableExists:
               tableName: users
-          - not:
-              columnExists:
-                tableName: users
-                columnName: enabled
+          - sqlCheck:
+              expectedResult: 0
+              sql: SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_name = 'users' AND column_name = 'enabled'
       changes:
         - addColumn:
             tableName: users
             columns:
               - column:
                   name: enabled
-                  type: boolean
+                  type: BOOLEAN
                   defaultValueBoolean: true
                   constraints:
                     nullable: false
