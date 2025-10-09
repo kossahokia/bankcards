@@ -69,10 +69,13 @@ public class CardController {
      * @return a paginated list of {@link CardResponse} objects
      */
     @Operation(summary = "Get all cards of the current user", description = "Supports pagination and optional filtering by card status.")
-    @ApiResponses({
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cards successfully retrieved",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CardResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "422", description = "Corrupted card data: card number could not be decrypted",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
@@ -99,13 +102,15 @@ public class CardController {
      * @param id card ID
      * @return updated {@link CardResponse} with new status
      */
-    @Operation(summary = "Request card blocking",
-            description = "Allows a user to request blocking of one of their active, non-expired cards.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Block request submitted",
+    @Operation(summary = "Request blocking of a card")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Card block request successfully submitted",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CardResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Card is not active or has expired",
+            @ApiResponse(responseCode = "400", description = "Card is not active, cannot request block",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Card not found for this user",
@@ -119,7 +124,8 @@ public class CardController {
             @PathVariable Long id
     ) {
         User user = userService.findByUsername(authentication.getName());
-        return ResponseEntity.ok(cardService.requestBlockByOwner(id, user));
+        CardResponse updated = cardService.requestBlockByOwner(id, user);
+        return ResponseEntity.ok(updated);
     }
 
     /**
@@ -129,11 +135,14 @@ public class CardController {
      * @param id card ID
      * @return current card balance as {@link BigDecimal}
      */
-    @Operation(summary = "Get card balance")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Card balance retrieved",
+    @Operation(summary = "Get balance of a specific card")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Card balance successfully retrieved",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = BigDecimal.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Card not found for this user",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
@@ -157,16 +166,19 @@ public class CardController {
      * @param req details of the transfer
      * @return HTTP 200 if transfer succeeds
      */
-    @Operation(summary = "Transfer funds between user’s own cards")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Transfer completed successfully"),
-            @ApiResponse(responseCode = "400", description = "Validation failed (e.g., amount ≤ 0 or same card IDs)",
+    @Operation(summary = "Transfer money between user’s own cards")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Transfer successfully completed"),
+            @ApiResponse(responseCode = "400", description = "Validation failed: invalid request body (e.g. missing fields, amount ≤ 0)",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Source or destination card not found for this user",
+            @ApiResponse(responseCode = "401", description = "Unauthorized: missing or invalid JWT",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "422", description = "Transfer failed (e.g., insufficient funds or inactive card)",
+            @ApiResponse(responseCode = "404", description = "Card not found for this user (either source or destination card is invalid)",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "422", description = "Transfer failed due to business rule violation (e.g. insufficient funds)",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ApiErrorResponse.class)))
     })
