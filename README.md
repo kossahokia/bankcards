@@ -149,7 +149,7 @@ docker compose up --build
 
 ### `application.yml`
 - Настройки PostgreSQL (через Docker)
-- Liquibase changelog’и
+- Liquibase changelogs
 - JWT параметры (`secret`, `expiration`)
 - Уровни логирования (`WARN`, `INFO`)
 
