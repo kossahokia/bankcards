@@ -10,7 +10,7 @@ import java.util.Objects;
  * Utility class for validating card expiration dates.
  * <p>
  * Provides helper methods to determine whether a given {@link com.example.bankcards.entity.Card} has expired
- * based on its {@link com.example.bankcards.entity.Card#getExpiryDate()} field. This utility ensures consistent
+ * based on its {@link com.example.bankcards.entity.Card Card}'s expiry date field. This utility ensures consistent
  * date comparison logic across the application.
  * </p>
  *
