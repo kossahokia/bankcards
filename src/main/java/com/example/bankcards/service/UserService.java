@@ -45,14 +45,13 @@ import java.util.Set;
  * encapsulating all business rules and data integrity checks.
  * </p>
  *
+ * @author Konstantin Sakhokiia
  * @see UserRepository
  * @see RoleRepository
  * @see PasswordEncoder
  * @see UsernameMatchType
  * @see NotFoundException
  * @see BadRequestException
- *
- * @author Konstantin Sakhokiia
  * @since 1.0
  */
 @Service
@@ -124,6 +123,8 @@ public class UserService {
 
     /**
      * Retrieves a paginated list of users with optional filters by username and status.
+     * <p>
+     * If no filters are provided, all users are returned
      *
      * @param username  optional username filter (partial or exact match depending on {@link UsernameMatchType})
      * @param enabled   optional account enabled status
@@ -132,27 +133,27 @@ public class UserService {
      * @return a paginated {@link Page} of {@link User} objects
      */
     public Page<User> getAllUsers(String username, Boolean enabled, UsernameMatchType matchType, Pageable pageable) {
-        if (username != null && enabled != null) {
-            return switch (matchType != null ? matchType : UsernameMatchType.CONTAINS) {
-                case EQUALS -> userRepository.findByUsernameEqualsIgnoreCase(username, pageable)
-                        .map(u -> { u.setEnabled(u.isEnabled() && enabled); return u; });
-                case STARTS -> userRepository.findByUsernameStartingWithIgnoreCase(username, pageable)
-                        .map(u -> { u.setEnabled(u.isEnabled() && enabled); return u; });
-                case CONTAINS -> userRepository.findByUsernameContainingIgnoreCase(username, pageable)
-                        .map(u -> { u.setEnabled(u.isEnabled() && enabled); return u; });
-            };
-        } else if (username != null) {
-            return switch (matchType != null ? matchType : UsernameMatchType.CONTAINS) {
-                case EQUALS -> userRepository.findByUsernameEqualsIgnoreCase(username, pageable);
-                case STARTS -> userRepository.findByUsernameStartingWithIgnoreCase(username, pageable);
-                case CONTAINS -> userRepository.findByUsernameContainingIgnoreCase(username, pageable);
-            };
-        } else if (enabled != null) {
+        UsernameMatchType type = matchType != null ? matchType : UsernameMatchType.CONTAINS;
+
+        if (username == null && enabled == null) {
+            return userRepository.findAll(pageable);
+        } else if (username == null) {
             return userRepository.findByEnabled(enabled, pageable);
         } else {
-            return userRepository.findAll(pageable);
+            return switch (type) {
+                case EQUALS -> enabled != null
+                        ? userRepository.findByUsernameEqualsIgnoreCaseAndEnabled(username, enabled, pageable)
+                        : userRepository.findByUsernameEqualsIgnoreCase(username, pageable);
+                case STARTS -> enabled != null
+                        ? userRepository.findByUsernameStartingWithIgnoreCaseAndEnabled(username, enabled, pageable)
+                        : userRepository.findByUsernameStartingWithIgnoreCase(username, pageable);
+                case CONTAINS -> enabled != null
+                        ? userRepository.findByUsernameContainingIgnoreCaseAndEnabled(username, enabled, pageable)
+                        : userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+            };
         }
     }
+
 
     /**
      * Deletes a user by their ID. Removes all role associations before deletion.

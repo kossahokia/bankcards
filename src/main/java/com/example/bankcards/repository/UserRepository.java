@@ -92,4 +92,25 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return a page of users that match both conditions
      */
     Page<User> findByUsernameContainingIgnoreCaseAndEnabled(String username, boolean enabled, Pageable pageable);
+
+    /**
+     * Finds users whose username starts with the given prefix (case-insensitive) and enabled status.
+     *
+     * @param username prefix of username
+     * @param enabled whether users are active
+     * @param pageable pagination information
+     * @return a page of users that match both conditions
+     */
+    Page<User> findByUsernameStartingWithIgnoreCaseAndEnabled(String username, boolean enabled, Pageable pageable);
+
+    /**
+     * Finds users whose username exactly matches the given value (case-insensitive) and enabled status.
+     *
+     * @param username exact username to match
+     * @param enabled whether users are active
+     * @param pageable pagination information
+     * @return a page of users that match both conditions
+     */
+    Page<User> findByUsernameEqualsIgnoreCaseAndEnabled(String username, boolean enabled, Pageable pageable);
+
 }
