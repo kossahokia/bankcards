@@ -58,11 +58,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private RoleRepository roleRepository;
-    @Mock private PasswordEncoder passwordEncoder;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private RoleRepository roleRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-    @InjectMocks private UserService userService;
+    @InjectMocks
+    private UserService userService;
 
     private User user;
     private Role role;
@@ -170,7 +174,7 @@ class UserServiceTest {
     @Test
     @DisplayName("✅ getAllUsers username+enabled with EQUALS")
     void getAllUsers_UsernameEnabled_Equals() {
-        when(userRepository.findByUsernameEqualsIgnoreCase(eq("alice"), any()))
+        when(userRepository.findByUsernameEqualsIgnoreCaseAndEnabled(eq("alice"), eq(true), any()))
                 .thenReturn(makePage(user));
 
         Page<User> result = userService.getAllUsers("alice", true, UsernameMatchType.EQUALS, pageable);
@@ -180,7 +184,7 @@ class UserServiceTest {
     @Test
     @DisplayName("✅ getAllUsers username+enabled with STARTS")
     void getAllUsers_UsernameEnabled_Starts() {
-        when(userRepository.findByUsernameStartingWithIgnoreCase(eq("a"), any()))
+        when(userRepository.findByUsernameStartingWithIgnoreCaseAndEnabled(eq("a"), eq(true), any()))
                 .thenReturn(makePage(user));
 
         Page<User> result = userService.getAllUsers("a", true, UsernameMatchType.STARTS, pageable);
@@ -190,11 +194,11 @@ class UserServiceTest {
     @Test
     @DisplayName("✅ getAllUsers username+enabled with CONTAINS (default)")
     void getAllUsers_UsernameEnabled_Contains_DefaultMatchType() {
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("a"), any()))
+        when(userRepository.findByUsernameContainingIgnoreCaseAndEnabled(eq("a"), eq(true), any()))
                 .thenReturn(makePage(user));
 
         Page<User> result = userService.getAllUsers("a", true, null, pageable);
-        assertThat(result.getContent()).isNotEmpty();
+        assertThat(result.getContent()).hasSize(1);
     }
 
     @Test
@@ -351,60 +355,97 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("✅ getAllUsers username+enabled=false (EQUALS) disables users correctly")
-    void getAllUsers_UsernameEnabledFalse_DisablesUser() {
-        user.setEnabled(true);
-        when(userRepository.findByUsernameEqualsIgnoreCase(eq("alice"), any()))
-                .thenReturn(makePage(user));
+    @DisplayName("✅ getAllUsers username+disabled with EQUALS")
+    void getAllUsers_UsernameDisabled_Equals() {
+        User disabledUser = User.builder()
+                .id(1L)
+                .username("alice")
+                .password("encodedPass")
+                .fullName("Alice A.")
+                .enabled(false)
+                .roles(new HashSet<>())
+                .build();
+
+        when(userRepository.findByUsernameEqualsIgnoreCaseAndEnabled(eq("alice"), eq(false), any()))
+                .thenReturn(makePage(disabledUser));
 
         Page<User> result = userService.getAllUsers("alice", false, UsernameMatchType.EQUALS, pageable);
-
-        // теперь .map(u -> u.setEnabled(u.isEnabled() && enabled)) отработал со значением false
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().isEnabled()).isFalse();
     }
 
     @Test
-    @DisplayName("✅ getAllUsers username+enabled=false with STARTS handles disabled user")
-    void getAllUsers_UsernameEnabledFalse_Starts_DisablesUser() {
-        user.setEnabled(false);
-        when(userRepository.findByUsernameStartingWithIgnoreCase(eq("a"), any()))
-                .thenReturn(makePage(user));
+    @DisplayName("✅ getAllUsers username+disabled with Starts")
+    void getAllUsers_UsernameDisabled_Starts() {
+        User disabledUser = User.builder()
+                .id(1L)
+                .username("alice")
+                .password("encodedPass")
+                .fullName("Alice A.")
+                .enabled(false)
+                .roles(new HashSet<>())
+                .build();
+        when(userRepository.findByUsernameStartingWithIgnoreCaseAndEnabled(eq("a"), eq(false), any()))
+                .thenReturn(makePage(disabledUser));
 
         Page<User> result = userService.getAllUsers("a", false, UsernameMatchType.STARTS, pageable);
 
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().isEnabled()).isFalse();
     }
+
     @Test
-    @DisplayName("✅ getAllUsers username+enabled with CONTAINS and null matchType (branch coverage fix)")
-    void getAllUsers_UsernameEnabled_Contains_NullMatchType() {
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("alice"), any()))
+    @DisplayName("✅ getAllUsers username+enabled with null matchType")
+    void getAllUsers_UsernameEnabled_NullMatchType() {
+        when(userRepository.findByUsernameContainingIgnoreCaseAndEnabled(eq("alice"), eq(true), any()))
                 .thenReturn(makePage(user));
 
         // matchType = null, enabled != null (true)
         Page<User> result = userService.getAllUsers("alice", true, null, pageable);
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).isEnabled()).isTrue();
+        assertThat(result.getContent().getFirst().isEnabled()).isTrue();
     }
+
     @Test
-    @DisplayName("✅ getAllUsers enabled only (false)")
-    void getAllUsers_EnabledOnly_False() {
-        when(userRepository.findByEnabled(false, pageable)).thenReturn(makePage(user));
+    @DisplayName("✅ getAllUsers disabled only")
+    void getAllUsers_DisabledOnly() {
+        User disabledUser = User.builder()
+                .id(1L)
+                .username("alice")
+                .password("encodedPass")
+                .fullName("Alice A.")
+                .enabled(false)
+                .roles(new HashSet<>())
+                .build();
+
+        when(userRepository.findByEnabled(false, pageable)).thenReturn(makePage(disabledUser));
         Page<User> result = userService.getAllUsers(null, false, null, pageable);
         assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().isEnabled()).isFalse();
         verify(userRepository).findByEnabled(false, pageable);
     }
+
     @Test
-    @DisplayName("✅ getAllUsers username+enabled=false with CONTAINS")
-    void getAllUsers_UsernameEnabledFalse_Contains() {
-        user.setEnabled(true);
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("alice"), any()))
-                .thenReturn(makePage(user));
+    @DisplayName("✅ getAllUsers username+disabled with CONTAINS")
+    void getAllUsers_UsernameDisabled_Contains() {
+        User disabledUser = User.builder()
+                .id(1L)
+                .username("alice")
+                .password("encodedPass")
+                .fullName("Alice A.")
+                .enabled(false)
+                .roles(new HashSet<>())
+                .build();
+        when(userRepository.findByUsernameContainingIgnoreCaseAndEnabled(eq("alice"), eq(false), any()))
+                .thenReturn(makePage(disabledUser));
 
         Page<User> result = userService.getAllUsers("alice", false, UsernameMatchType.CONTAINS, pageable);
-
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().isEnabled()).isFalse();
+        verify(userRepository).findByUsernameContainingIgnoreCaseAndEnabled("alice", false, pageable);
     }
+
     @Test
     @DisplayName("❌ assignRole role not found includes role name in message")
     void assignRole_RoleNotFound_MessageCheck() {
@@ -415,6 +456,7 @@ class UserServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Role not found: USER");
     }
+
     @Test
     @DisplayName("❌ removeRole role not found includes correct message")
     void removeRole_RoleNotFound_MessageCheck() {
@@ -426,28 +468,7 @@ class UserServiceTest {
                 .hasMessage("Role not found");
 
     }
-    @Test
-    @DisplayName("✅ getAllUsers username+enabled=true with user initially disabled")
-    void getAllUsers_UsernameEnabledTrue_UserInitiallyDisabled() {
-        user.setEnabled(false); // пользователь изначально выключен
-        when(userRepository.findByUsernameEqualsIgnoreCase(eq("alice"), any()))
-                .thenReturn(makePage(user));
 
-        Page<User> result = userService.getAllUsers("alice", true, UsernameMatchType.EQUALS, pageable);
-
-        // enabled = true, но u.isEnabled() = false → останется false
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
-    }
-    @Test
-    @DisplayName("✅ getAllUsers when both username and enabled are null → findAll() called")
-    void getAllUsers_BothNull_CallsFindAll() {
-        when(userRepository.findAll(pageable)).thenReturn(makePage(user));
-
-        Page<User> result = userService.getAllUsers(null, null, null, pageable);
-
-        assertThat(result.getContent()).hasSize(1);
-        verify(userRepository).findAll(pageable);
-    }
     @Test
     @DisplayName("✅ getAllUsers username only + null matchType defaults to CONTAINS")
     void getAllUsers_UsernameOnly_NullMatchType_DefaultContains() {
@@ -458,29 +479,5 @@ class UserServiceTest {
 
         assertThat(result.getContent()).hasSize(1);
         verify(userRepository).findByUsernameContainingIgnoreCase("alice", pageable);
-    }
-    @Test
-    @DisplayName("✅ getAllUsers username+enabled=true with user initially disabled (STARTS)")
-    void getAllUsers_UsernameEnabledTrue_UserInitiallyDisabled_Starts() {
-        user.setEnabled(false);
-        when(userRepository.findByUsernameStartingWithIgnoreCase(eq("a"), any()))
-                .thenReturn(makePage(user));
-
-        Page<User> result = userService.getAllUsers("a", true, UsernameMatchType.STARTS, pageable);
-
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
-        verify(userRepository).findByUsernameStartingWithIgnoreCase("a", pageable);
-    }
-    @Test
-    @DisplayName("✅ getAllUsers username+enabled=true with user initially disabled (CONTAINS)")
-    void getAllUsers_UsernameEnabledTrue_UserInitiallyDisabled_Contains() {
-        user.setEnabled(false);
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("a"), any()))
-                .thenReturn(makePage(user));
-
-        Page<User> result = userService.getAllUsers("a", true, UsernameMatchType.CONTAINS, pageable);
-
-        assertThat(result.getContent().get(0).isEnabled()).isFalse();
-        verify(userRepository).findByUsernameContainingIgnoreCase("a", pageable);
     }
 }
